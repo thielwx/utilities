@@ -39,7 +39,7 @@ def gridexpand(data,kind):
     #Initializing the new grid
     new_grid = np.ones((latlen,lonlen))
     
-    for lat in latpts:#Out loop is per point of latitude with the new grid
+    for lat in latpts:#Outer loop is per point of latitude with the new grid
         for lon in lonpts:#Inner loop is per point of longitude with the new grid
             #Selecting the data that we want to
             section = data[lat*10:(lat+1)*10,lon*10:(lon+1)*10]

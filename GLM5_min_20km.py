@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Code designed to compile GLM data over 5-minute intervals
+# ## Code designed to compile GLM data over 5-minute intervals at the 20 km resolution
 
 
 
@@ -13,6 +13,8 @@ import os
 from datetime import datetime as DT
 import subprocess as sp
 import sys
+sys.path.insert(1, '/localdata/PyScripts/utilities/')
+from fn_master import *
 
 
 #===========================================
@@ -29,7 +31,7 @@ def magic(position,variable,command):
     file2 = nc.Dataset(file_loc+file_list[position-3],'r')
     file1 = nc.Dataset(file_loc+file_list[position-4],'r')
     
-    #Extracting the variable and filling the masked arrays with Nan
+    #Extracting the variable
     var5 = file5.variables[variable][:,:].astype(np.float32)
     var4 = file4.variables[variable][:,:].astype(np.float32)
     var3 = file3.variables[variable][:,:].astype(np.float32)
@@ -42,7 +44,7 @@ def magic(position,variable,command):
     file2.close()
     file1.close()
 
-    #Filling the masked arrays with zeros to do the calculations
+    #Filling the masked arrays with nans to do the calculations
     var5 = np.ma.filled(var5,fill_value=np.nan)
     var4 = np.ma.filled(var4,fill_value=np.nan)
     var3 = np.ma.filled(var3,fill_value=np.nan)
@@ -90,12 +92,12 @@ def time_name(i):
 
 
 
-def ncsave(FED,FCD,AFA,TE,GED,GCD,AGA,MFA,save_name):
+def ncsave(FED,AFA,TE,MFA,save_name):
     #Setting up the file with the save location
     rootgrp = nc.Dataset(save_loc+save_name+".nc", "w", format="NETCDF4")
     #Creating x and y dimensions
-    x = rootgrp.createDimension('x',2500)
-    y = rootgrp.createDimension('y',1500)
+    x = rootgrp.createDimension('x',250)
+    y = rootgrp.createDimension('y',150)
     #Setting up the variables
     var1 = rootgrp.createVariable(variables[0],'f4',('y','x'))
     #var2 = rootgrp.createVariable(variables[1],'f4',('y','x'))
@@ -151,17 +153,18 @@ variables = ['flash_extent_density','flash_centroid_density','average_flash_area
 for i in counter[::5]:
 
     save_name = time_name(i)
-    
+    #Opening up the files, and accumulating them over 5 minute intervals
     FED = magic(i,variables[0],asum)
-    FCD = magic(i,variables[1],asum)
     AFA = magic(i,variables[2],aavg)
     TE  = magic(i,variables[3],asum)
-    GED = magic(i,variables[4],asum)
-    GCD = magic(i,variables[5],asum)
-    AGA = magic(i,variables[6],aavg)
     MFA = magic(i,variables[7],amin)
-    
-    ncsave(FED,FCD,AFA,TE,GED,GCD,AGA,MFA,save_name)
+    #Converting the files to 20 km resolutions
+    FED = gridexpand(FED,'max')
+    AFA = gridexpand(AFA,'avg')
+    TE  = gridexpand(TE ,'max')
+    MFA = gridexpand(MFA,'min')
+    #Saving the grids as netCDF files
+    ncsave(FED,AFA,TE,MFA,save_name)
     
 
 
