@@ -37,16 +37,9 @@ def glmfunction(inputpath, savepath, filestring):
     return 0
 
 
-def driver()
-
-
-
 #===========================================
 # Use like this: python runglmtools.py 20190602 201906021200 201906021400 
 #===========================================
-
-if __name__ == '__main__':
-    main()
 
 def main():
     advancetime = DT.timedelta(seconds=60) #Can also set this to days or months (days=1)
@@ -70,25 +63,30 @@ def main():
     dtend = DT.datetime.strptime(enddate, "%Y%m%d%H%M")
 
     #List of minutes to pull from
-    minute_list = pd.date_range(start=dtstart,end=dtend,freq='M').to_pydatetime().tolist()
+    minute_list = pd.date_range(start=dtstart,end=dtend,freq='min').to_pydatetime().tolist()
     
     #Making sure the start time is before the end time
     if dtstart > dtend:
         print ('ERROR: Start time is after the end time')
         sys.exit(0)
 
-for i in minutelist[::5]:
-    
 
 
+    for i in index[:-1:5]: #Outer loop for each 5 minutes
+        minutes = [minute_list[i],
+                minute_list[i+1],
+                minute_list[i+2],
+                minute_list[i+3],
+                minute_list[i+4]]
+        for j in mintues:
+            if threading.active_count() <= maxthreads:
+                YYYY, mm, dd, HH, doy, filestring = datetimestring(j)
+                t = threading.Thread(glmfunction,name=threading.active_count(),args=(inputpath, savepath, filestring))
+                t.start()
+                time.sleep(2)
+            else:
+                while threading.active_count() > maxthreads:
+                    time.sleep(300)
 
-def driver():
-
-    #While loop for processing the data on a per-mintute basis
-    ctime = dtstart
-    while ctime < dtend:
-        print(ctime.strftime("%Y%m%d-%H%M")) #Checkpoint
-        YYYY, mm, dd, HH, doy, filestring = datetimestring(ctime)
-        glmfunction(inputpath, savepath, filestring)
-        ctime = ctime+advancetime
-
+if __name__ == '__main__':
+    main()
