@@ -6,6 +6,8 @@ import pandas as pd
 from botocore.client import Config
 from botocore import UNSIGNED
 import threading
+import numpy as np
+import time
 
 import warnings
 
@@ -70,6 +72,8 @@ def main():
         print ('ERROR: Start time is after the end time')
         sys.exit(0)
 
+    maxthreads = 7
+    index = np.arange(0,len(minute_list),1)
 
 
     for i in index[:-1:5]: #Outer loop for each 5 minutes
@@ -78,15 +82,16 @@ def main():
                 minute_list[i+2],
                 minute_list[i+3],
                 minute_list[i+4]]
-        for j in mintues:
+        for j in minutes:
+            print (j)
             if threading.active_count() <= maxthreads:
                 YYYY, mm, dd, HH, doy, filestring = datetimestring(j)
-                t = threading.Thread(glmfunction,name=threading.active_count(),args=(inputpath, savepath, filestring))
+                t = threading.Thread(target=glmfunction,name=threading.active_count(),args=(inputpath, savepath, filestring))
                 t.start()
                 time.sleep(2)
             else:
                 while threading.active_count() > maxthreads:
-                    time.sleep(300)
+                    time.sleep(10)
 
 if __name__ == '__main__':
     main()
