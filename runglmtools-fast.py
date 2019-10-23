@@ -91,7 +91,12 @@ def main():
                 time.sleep(2)
             else:
                 while threading.active_count() > maxthreads:
-                    time.sleep(10)
+                    time.sleep(20)
+                    #print ('**************************DING*******************************')
+                    YYYY, mm, dd, HH, doy, filestring = datetimestring(j)
+                    t = threading.Thread(target=glmfunction,name=threading.active_count(),args=(inputpath, savepath, filestring))
+                    t.start()
+                    time.sleep(2)
 
 if __name__ == '__main__':
     main()

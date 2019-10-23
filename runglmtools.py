@@ -4,6 +4,7 @@ import boto3
 import subprocess as sp
 from botocore.client import Config
 from botocore import UNSIGNED
+import threading
 
 import warnings
 
