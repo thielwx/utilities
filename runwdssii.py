@@ -10,7 +10,7 @@ def run_ldm2netcdf(radar, startdate, inloc, outloc, prefix):
 
     '''Runs ldm2netcdf input: radar site, input and output locations. Returns process code and writes out log file called ldm2netcdf.log'''
 
-    logfile = open('logs/ldm2netcdf'+startdate+'.'+radar+'.log','w')
+    logfile = open('/localdata/PyScripts/utilities/logs/ldm2netcdf'+startdate+'.'+radar+'.log','w')
 
     cmd = 'ldm2netcdf  -s ' + radar + ' -i '+ inloc + radar +' -o ' + outloc + '  -a -1 -L -p  '+ prefix #+' --verbose unanticipated'
 
@@ -46,7 +46,7 @@ def run_dealiasVel(radar, startdate, outloc, soundingloc, prefix):
 
     '''Runs dealias2d input: radar site, output location, and sounding file location. Returns process code and writes out log file called dealias2d.log'''
 
-    logfile = open('logs/dealias2d'+startdate+'.'+radar+'.log','w')
+    logfile = open('/localdata/PyScripts/utilities/logs/dealias2d'+startdate+'.'+radar+'.log','w')
 
     cmd = 'dealiasVel -R '+ radar + ' -i ' + outloc+'/big_index.xml ' +' -o '+ outloc +' -S SoundingTable -Z ReflectivityQC'
 
@@ -64,7 +64,7 @@ def run_w2qcnn(radar, startdate, outloc):
     
     '''Runs qcnn input: radar site, outlocation. Returns process code and writes out log file named qcnn.log'''
 
-    logfile = open('logs/qcnn'+startdate+'.'+radar+'.log','w')
+    logfile = open('/localdata/PyScripts/utilities/logs/qcnn'+startdate+'.'+radar+'.log','w')
 
     cmd = 'w2qcnndp -i ' + outloc +'/code_index.xml -o '+ outloc +' -s '+ radar + ' -R 0.25x0.5x460 --verbose=debug'
 
@@ -148,13 +148,14 @@ def main():
     """
     args = sys.argv
 
-    radars = ['KLBB','KAMA','KFDR','KTLX'] #20180501
-
     startdate = args[1] #YYYMMDD
     inloc = args[2]     #inital level2 location
     outloc = args[3]    #Location of output
     soundingloc = args[4]#location to NSE path
     prefix = args[5]     #prefix of files
+
+    radars = os.listdir(inloc) #Listing the radars
+    print (radars)
 
     maxthreads = 5      #change for you computer...cpus
 
