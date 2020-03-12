@@ -5,14 +5,13 @@
 
 #Functions contained are: gridexpand, latlon, resample, var_dict
 
-
 import numpy as np
 import pandas as pd
 import netCDF4 as nc
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import pyproj as Proj
+from pyproj import Proj
 from pyresample import image, geometry, SwathDefinition
 
 
@@ -59,14 +58,14 @@ def gridexpand(data,kind):
 
 
 #A function that takes in a netCDF Dataset and returns its x/y coordinates as as lon/lat
-def latlon(data):
-    X = data.variables['x'][:]
-    Y = data.variables['y'][:]
-    
+def latlon(data):    
     sat_h = data.variables['goes_imager_projection'].perspective_point_height
     sat_lon = data.variables['goes_imager_projection'].longitude_of_projection_origin
     sat_sweep = data.variables['goes_imager_projection'].sweep_angle_axis
     
+    X = data.variables['x'][:] * sat_h
+    Y = data.variables['y'][:] * sat_h
+
     p = Proj(proj='geos', h=sat_h, lon_0=sat_lon, sweep=sat_sweep)
     YY, XX = np.meshgrid(Y, X)
     lons, lats = p(XX, YY, inverse=True)
@@ -97,6 +96,36 @@ def resample(var):
     #Extracting the data
     result = swath_resampled.image_data
     return result
+
+
+def viewingangle(latP,lonP):
+    R = 6.37*10**6 #Radius of the Earth (m)
+    H = 35786023.0 #Height of satellite from Earth's surface (m)
+    r = R + H      #Height of satellite from the center of the Earth (m)
+    lonS = [-75.0] #Longitude of the satellite (deg)
+    ratio = R/r
+    
+    #Converting to radians and making sure the longitudes are positive from east
+    lonS = np.radians(pos_lon(lonS))
+    lonP = np.radians(pos_lon(lonP))
+    latP = np.radians(latP)
+    #GEOMETRY (see notebook from 6/6 for diagram)
+    gamma = np.arccos(np.cos(latP)*np.cos(lonS-lonP))
+    d = r*np.sqrt(1+(ratio**2)-(2*ratio*np.cos(gamma)))
+    v = np.arccos((r/d)*np.sin(gamma))
+    v = np.degrees(v)
+
+
+
+    return v
+
+
+def pos_lon(lon):
+    array = np.arange(0,len(lon),1)
+    for i in array:
+        if lon[i]<0:
+            lon[i] = lon[i]+360
+    return lon
 
 
 
