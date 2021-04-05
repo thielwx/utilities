@@ -12,6 +12,13 @@ import time
 import warnings
 
 warnings.filterwarnings("ignore")
+
+
+sat_number = '17'
+#Dictionary that allows us to switch between 16 and 17 data with some grace
+glm_vars = {'16':['east','/GLM_grids/',''],
+            '17':['west','/GLM17_grids/','17']}
+
 #===========================================
 #Function Land
 #===========================================
@@ -32,15 +39,17 @@ def datetimestring(ctime):
 
 #A function that takes in the output from urlcreator and runs the wget function
 def glmfunction(inputpath, savepath, filestring):
-    cmd = 'python /localdata/GLMtools/glmtools/examples/grid/make_GLM_grids.py -o '+savepath+' --fixed_grid --split_events --goes_position east --goes_sector conus --dx=2.0 --dy=2.0 '+inputpath+filestring+'*.nc'
-    #print (cmd)
+    cmd = 'python /localdata/GLMtools/glmtools/examples/grid/make_GLM_grids.py -o '+savepath+' --fixed_grid --split_events --goes_position '+glm_vars[sat_number][0]+' --goes_sector conus --dx=2.0 --dy=2.0 '+inputpath+filestring+'*.nc'
+    print (cmd)
     p = sp.Popen(cmd,shell=True)
     p.wait()
     return 0
 
 
+
+
 #===========================================
-# Use like this: python runglmtools.py 20190602 201906021200 201906021400 
+# Use like this: python runglmtools.py 20190602 201906021200 201906021400
 #===========================================
 
 def main():
@@ -51,10 +60,11 @@ def main():
     case = args[1]
     startdate = args[2] #YYYYMMDDHHMM
     enddate = args[3] #YYYYMMDDHHMM
+    
      
     #Creating the savepath path
-    savepath = '/localdata/cases/'+case+'/GLM_grids/'
-    inputpath = '/localdata/cases/'+case+'/GLM/OR_GLM-L2-LCFA_G16_s'
+    savepath = '/localdata/cases/'+case+glm_vars[sat_number][1]
+    inputpath = '/localdata/cases/'+case+'/GLM'+glm_vars[sat_number][2]+'/OR_GLM-L2-LCFA_G'+sat_number+'_s'
 
     #Creating the path if one doesn't already exist for the files
     if not os.path.exists(savepath):

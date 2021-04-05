@@ -15,11 +15,11 @@ from botocore import UNSIGNED
 def starturl(dtstart):
     if dtstart < DT.datetime(2019, 5, 8):
         url = 'http://goes16.metr.ou.edu/'
-        after = False
+    elif (dtstart >= DT.datetime(2019, 5, 8)) & (dtstart < DT.datetime(2020,3,1)):
+        url = 'http://goes16.metr.ou.edu/new_data/'
     else:
         url = 'http://goes16.metr.ou.edu/files_after_2019_05_08/'
-        after = True
-    return url, after 
+    return url
 
 
          
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
 
     #Creating the starting URL
-    url,after = starturl(dtstart)    
+    url = starturl(dtstart)    
 
     #While loop for downloading the data on an hourly basis
     ctime = dtstart
